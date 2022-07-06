@@ -1,0 +1,67 @@
+{{#with ContextAPI}}
+/**
+  ******************************************************************************
+  * @file           : stm32_{{lowercase (exec getResource)}}.h
+  * @brief          : Header for stm32_{{lowercase (exec getResource)}}.c file.
+  ******************************************************************************
+  * @attention
+  *
+  * <h2><center>&copy; Copyright (c) {{COPYRIGHT}} STMicroelectronics.
+  * All rights reserved.</center></h2>
+  *
+  *{{LICENSE}}
+  *
+  ******************************************************************************
+  */
+
+/* Define to prevent recursive inclusion -------------------------------------*/
+#ifndef STM32_{{getResource}}_H
+#define STM32_{{getResource}}_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/* Includes ------------------------------------------------------------------*/
+#include "stm32_hal.h"
+
+{{#if (eq resource 'CRC1')}}
+/* Private define ------------------------------------------------------------*/
+#define {{getResource}} CRC
+{{/if}}
+
+/* Exported types ------------------------------------------------------------*/
+/* Exported constants --------------------------------------------------------*/
+/* Exported macro ------------------------------------------------------------*/
+/* Exported variables --------------------------------------------------------*/
+/* Exported functions ------------------------------------------------------- */
+{{#each getConfigs}}
+/**
+  * @brief {{lowercase (exec @root.ContextAPI.getResource)}}{{addConfigUC cfg_name}} init function
+  * This function configures the hardware resources used in this example
+  * @retval pointer to handle or NULL in case of failure
+  */
+void *{{lowercase (exec @root.ContextAPI.getResource)}}{{addConfigLC cfg_name}}_init(void);
+
+{{/each}}
+/**
+  * @brief  De-initialize {{lowercase (exec getResource)}} instance and return it.
+  * @retval None
+  */
+void {{lowercase (exec getResource)}}_deinit(void);
+
+/**
+  * @brief  Get the {{getResource}} object.
+  * @retval Pointer on the {{getResource}} Handle
+  */
+void *{{lowercase (exec getResource)}}_getobject(void);
+
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* STM32_{{getResource}}_H */
+
+/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+{{/with~}}

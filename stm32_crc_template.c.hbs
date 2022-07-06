@@ -1,0 +1,100 @@
+{{#with ContextAPI}}
+/**
+  ******************************************************************************
+  * @file           : stm32_{{lowercase (exec getResource)}}.c
+  * @brief          : Peripheral initialization
+  *                   File per peripheral instance that is handling the peripheral
+  *                   initialization and the IRQ handlers. Init parameters provided
+  *                   as a set of defines configurable/generated for a given target
+  *                   through the  hal_usart_settings.json and the config tool.
+  ******************************************************************************
+  * @attention
+  *
+  * <h2><center>&copy; Copyright (c) {{COPYRIGHT}} STMicroelectronics.
+  * All rights reserved.</center></h2>
+  *
+  *{{LICENSE}}
+  *
+  ******************************************************************************
+  */
+/* Includes ------------------------------------------------------------------*/
+#include "stm32_{{lowercase (exec getResource)}}.h"
+
+/* Private typedef -----------------------------------------------------------*/
+/* Private define ------------------------------------------------------------*/
+/* Private macro -------------------------------------------------------------*/
+/* Private variables ---------------------------------------------------------*/
+/* Private functions prototype------------------------------------------------*/
+/* Exported variables by reference--------------------------------------------*/
+static CRC_HandleTypeDef gh_{{lowercase (exec getResource)}};
+
+{{#each getConfigs}}
+void *{{lowercase (exec @root.ContextAPI.getResource)}}{{addConfigLC cfg_name}}_init(void)
+{
+  gh_{{lowercase (exec @root.ContextAPI.getResource)}}.Instance = {{@root.ContextAPI.getResource}};
+{{#each CRC_InitTypeDef}}
+{{#if (eq @key 'DefaultInitValueUse')~}}{{! boolean type}}
+  gh_{{lowercase (exec @root.ContextAPI.getResource)}}.Init.{{@key}} = DEFAULT_INIT_VALUE_{{#if this}}ENABLE{{else}}DISABLE{{/if}};
+{{else if (eq @key 'DefaultPolynomialUse')~}}{{! boolean type}}
+  gh_{{lowercase (exec @root.ContextAPI.getResource)}}.Init.{{@key}} = DEFAULT_POLYNOMIAL_{{#if this}}ENABLE{{else}}DISABLE{{/if}};
+{{else if (eq @key 'CRCLength')~}}{{! integer type}}
+  gh_{{lowercase (exec @root.ContextAPI.getResource)}}.Init.{{@key}} = CRC_POLYLENGTH_{{this}}B;
+{{else if (eq @key 'OutputDataInversionMode')~}}{{! boolean type}}
+  gh_{{lowercase (exec @root.ContextAPI.getResource)}}.Init.{{@key}} = CRC_OUTPUTDATA_INVERSION_{{#if this}}ENABLE{{else}}DISABLE{{/if}};
+{{else if (eq @key 'CRC_Polynomial')~}}
+  gh_{{lowercase (exec @root.ContextAPI.getResource)}}.Init.GeneratingPolynomial = {{this.value}};
+  gh_{{lowercase (exec @root.ContextAPI.getResource)}}.Init.CRCLength = CRC_POLYLENGTH_{{this.size}}B;
+{{else~}}{{! other types using directly the HAL value}}
+  gh_{{lowercase (exec @root.ContextAPI.getResource)}}.Init.{{@key}} = {{this}};
+{{/if}}
+{{/each}}
+  if (HAL_CRC_Init(&gh_{{lowercase (exec @root.ContextAPI.getResource)}}) != HAL_OK)
+  {
+    return NULL;
+  }
+
+  return (void *)&gh_{{lowercase (exec @root.ContextAPI.getResource)}};
+}
+{{/each}}
+
+void {{lowercase (exec getResource)}}_deinit(void)
+{
+  (void)HAL_CRC_DeInit(&gh_{{lowercase (exec getResource)}});
+}
+
+void *{{lowercase (exec getResource)}}_getobject(void)
+{
+  return (void *)&gh_{{lowercase (exec getResource)}};
+}
+/**
+  * @brief CRC MSP Initialization
+  * This function configures the hardware resources used in this example
+  * @param hcrc CRC handle pointer
+  * @retval None
+  */
+void HAL_CRC_MspInit(CRC_HandleTypeDef *hcrc)
+{
+  if (hcrc->Instance == CRC)
+  {
+    /* Peripheral clock enable */
+    __HAL_RCC_CRC_CLK_ENABLE();
+  }
+}
+
+/**
+  * @brief CRC MSP De-Initialization
+  * This function freeze the hardware resources used in this example
+  * @param hcrc CRC handle pointer
+  * @retval None
+  */
+void HAL_CRC_MspDeInit(CRC_HandleTypeDef *hcrc)
+{
+  if (hcrc->Instance == CRC)
+  {
+    /* Peripheral clock disable */
+    __HAL_RCC_CRC_CLK_DISABLE();
+  }
+}
+
+/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+{{/with}}
